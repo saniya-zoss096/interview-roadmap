@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Welcome, {{ current_user.full_name }}</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>Professional Level</h4>
+                <div class="display-4">{{ current_user.professional_level or '?' }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>Target Field</h4>
+                <p>{{ current_user.target_field or 'Not set' }}</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>Courses in Progress</h4>
+                {% set in_progress = current_user.course_progress|selectattr('completed', 'equalto', false)|list %}
+                {% for p in in_progress %}
+                <p><a href="/course/{{ p.course_id }}">{{ p.course.title }}</a></p>
+                {% else %}
+                <p>None</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

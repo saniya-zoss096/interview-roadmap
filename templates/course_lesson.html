@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ course.title }}</h2>
+    <p class="text-muted">{{ course.description }}</p>
+    
+    <div class="row">
+        <div class="col-md-8">
+            {% for lesson in course.lessons|sort(attribute='order') %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>Lesson {{ loop.index }}: {{ lesson.title }}</h4>
+                </div>
+                <div class="card-body">
+                    {% if lesson.content_type == 'external_link' %}
+                    <div class="alert alert-info">
+                        <p>This is an external course on {{ course.source_platform }}</p>
+                        <a href="{{ lesson.content_url }}" target="_blank" class="btn btn-outline-primary mb-2">
+                            Open on {{ course.source_platform }}
+                        </a>
+                    </div>
+                    {% elif lesson.content_type == 'video' %}
+                    <div class="ratio ratio-16x9 mb-2">
+                        <iframe src="{{ lesson.content_url }}" allowfullscreen></iframe>
+                    </div>
+                    {% else %}
+                    <div class="mb-2 p-3 bg-light">
+                        {{ lesson.content_text | safe }}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="POST" action="/lesson/complete">
+                        <input type="hidden" name="lesson_id" value="{{ lesson.id }}">
+                        <input type="hidden" name="course_id" value="{{ course.id }}">
+                        <button type="submit" class="btn btn-success">
+                            Mark as Completed
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if progress.completed %}
+            <div class="alert alert-success mt-3">
+                <h4>Course Completed</h4>
+                <p>Certificate has been issued to your account.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5>Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% set total = course.lessons|length %}
+                    {% set done = completed_lessons|length %}
+                    {% set pct = 0 %}
+                    {% if total > 0 %}
+                    {% set pct = (done / total * 100)|round|int %}
+                    {% endif %}
+                    
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" 
+                             aria-valuenow="{{ pct }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ pct }}%
+                        </div>
+                    </div>
+                    
+                    <ul class="list-group">
+                        {% for lesson in course.lessons|sort(attribute='order') %}
+                        <li class="list-group-item 
+                            {% if lesson.id in completed_lessons %}
+                            list-group-item-success
+                            {% endif %}">
+                            {{ lesson.title }}
+                            {% if lesson.id in completed_lessons %}
+                            <span class="badge bg-success float-end">Done</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            {% if course.quizzes %}
+            {% if done >= total and total > 0 %}
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5>Quiz</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('take_quiz', quiz_id=course.quizzes[0].id) }}" 
+                       class="btn btn-warning w-100">
+                        Take Final Quiz
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if progress.completed %}
+    <div class="card mt-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5>What's Next?</h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                <a href="/placement-mode" class="list-group-item list-group-item-action">
+                    <strong>Explore More Courses</strong> - Find your next certification
+                </a>
+                <a href="/interview-mode" class="list-group-item list-group-item-action">
+                    <strong>Practice Interview</strong> - Test your skills
+                </a>
+                <a href="/exam-mode" class="list-group-item list-group-item-action">
+                    <strong>Update Assessment</strong> - Re-evaluate your level
+                </a>
+                <a href="/dashboard" class="list-group-item list-group-item-action">
+                    <strong>Go to Dashboard</strong> - View your progress
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

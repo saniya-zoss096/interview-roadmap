@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ quiz.title }}</h2>
+    <p class="text-muted">Passing score: {{ quiz.passing_score }}%</p>
+    
+    <form id="quizForm" method="POST" action="/quiz/submit">
+        <input type="hidden" name="quiz_id" value="{{ quiz.id }}" id="quizIdInput">
+        
+        {% for question in quiz.questions %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Question {{ loop.index }}</strong>
+            </div>
+            <div class="card-body">
+                <p>{{ question.question_text }}</p>
+                
+                {% set options_list = question.options %}
+                {% if options_list is string %}
+                    {% set options_list = options_list|from_json %}
+                {% endif %}
+                
+                {% for option in options_list %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" 
+                           name="q{{ question.id }}" 
+                           id="q{{ question.id }}_{{ loop.index }}" 
+                           value="{{ option }}">
+                    <label class="form-check-label" for="q{{ question.id }}_{{ loop.index }}">
+                        {{ option }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary btn-lg w-100">
+            Submit Quiz
+        </button>
+    </form>
+    
+    <div id="quizResult" class="mt-4" style="display: none;"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('quizForm');
+    
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        var quizId = document.getElementById('quizIdInput').value;
+        var answers = {};
+        
+        var radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+        radioButtons.forEach(function(radio) {
+            var name = radio.getAttribute('name');
+            var qid = name.replace('q', '');
+            answers[qid] = radio.value;
+        });
+        
+        var submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        
+        fetch('/quiz/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                quiz_id: parseInt(quizId),
+                answers: answers
+            })
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            var resultDiv = document.getElementById('quizResult');
+            resultDiv.style.display = 'block';
+            
+            if (data.passed) {
+                resultDiv.innerHTML = '<div class="alert alert-success">' +
+                    '<h4>Congratulations!</h4>' +
+                    '<p>Your score: ' + data.score.toFixed(1) + '%</p>' +
+                    '<p>You passed! Redirecting to dashboard...</p>' +
+                    '</div>';
+                setTimeout(function() {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            } else {
+                resultDiv.innerHTML = '<div class="alert alert-danger">' +
+                    '<h4>Not quite there</h4>' +
+                    '<p>Your score: ' + data.score.toFixed(1) + '%</p>' +
+                    '<p>Review the material and try again.</p>' +
+                    '<a href="javascript:history.back()" class="btn btn-warning">Go Back</a>' +
+                    '</div>';
+            }
+        })
+        .catch(function(error) {
+            var resultDiv = document.getElementById('quizResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div class="alert alert-danger">' +
+                'Error submitting quiz. Please try again.' +
+                '</div>';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Quiz';
+        });
+    });
+});
+</script>
+{% endblock %}

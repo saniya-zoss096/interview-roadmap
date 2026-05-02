@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1>Certificate of Completion</h1>
+    <p>This certifies that</p>
+    <h2>{{ cert.user.full_name }}</h2>
+    <p>has completed the course</p>
+    <h3>{{ cert.course.title }}</h3>
+    <p>on {{ cert.issued_date.strftime('%B %d, %Y') }}</p>
+    <p>Verification: {{ cert.verification_code }}</p>
+    <a href="/download-certificate/{{ cert.verification_code }}" class="btn btn-primary">Download PDF</a>
+</div>
+{% endblock %}

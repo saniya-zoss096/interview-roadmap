@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-video me-2"></i>Privacy-Preserving Interview Practice
+                        <span class="badge bg-success ms-2">Face Auto-Blurred</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        <strong>Your privacy is protected.</strong> Your face will be automatically blurred during analysis. 
+                        No video is stored or transmitted. All processing happens in real-time.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Camera Feed Section -->
+        <div class="col-md-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-camera me-2"></i>Live Camera Feed</h5>
+                    <span class="badge bg-warning text-dark" id="analysisStatus">Ready</span>
+                </div>
+                <div class="card-body text-center p-0 position-relative">
+                    <div class="position-relative" style="background: #000; min-height: 400px;">
+                        <video id="videoElement" autoplay playsinline style="width: 100%; max-height: 500px;"></video>
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                             style="background: rgba(0,0,0,0.7);" id="privacyOverlay">
+                            <div class="text-center text-white">
+                                <i class="fas fa-lock fa-3x mb-3"></i>
+                                <h5>Camera Off</h5>
+                                <p>Click "Start Camera" to begin practice</p>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="canvasElement" style="display:none;"></canvas>
+                    
+                    <div class="p-3">
+                        <button id="startCamera" class="btn btn-primary btn-lg" onclick="startCamera()">
+                            <i class="fas fa-play me-2"></i>Start Camera
+                        </button>
+                        <button id="stopCamera" class="btn btn-danger btn-lg" style="display:none;" onclick="stopCamera()">
+                            <i class="fas fa-stop me-2"></i>Stop Camera
+                        </button>
+                        <button id="analyzeButton" class="btn btn-success btn-lg" style="display:none;" onclick="analyzeFrame()">
+                            <i class="fas fa-search me-2"></i>Analyze Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analysis Results Section -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Real-Time Analysis</h5>
+                </div>
+                <div class="card-body" id="analysisResults">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-video-slash fa-3x mb-3"></i>
+                        <p>Start camera and click "Analyze" to get feedback</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Tips for Success</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Maintain straight posture
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Keep eye contact with camera
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Keep hands visible and open
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Dress professionally
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Ensure good lighting
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Minimize background distractions
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Session History</h5>
+                </div>
+                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                    {% if current_user.interview_sessions %}
+                    <div class="list-group">
+                        {% for session in current_user.interview_sessions|sort(attribute='session_date', reverse=true)|batch(5)|first %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small>{{ session.session_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                                <span class="badge bg-{{ 'success' if (session.posture_score + session.eye_contact_score + session.body_language_score) / 3 > 70 else 'warning' }}">
+                                    {{ "%.1f"|format((session.posture_score + session.eye_contact_score + session.body_language_score) / 3) }}%
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No previous sessions</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/interview.js') }}"></script>
+{% endblock %}

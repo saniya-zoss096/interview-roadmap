@@ -1,0 +1,29 @@
+# Environment variables - NEVER commit these!
+.env
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.db
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

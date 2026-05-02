@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: interview-roadmap
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SERPAPI_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false

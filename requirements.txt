@@ -1,0 +1,15 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+opencv-python
+mediapipe==0.10.9
+numpy
+pandas
+requests
+beautifulsoup4
+google-search-results
+PyGithub
+reportlab
+python-dotenv
+gunicorn

@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3>
+                Placement Mode
+                <small class="text-muted fs-6">Real-Time Market Intelligence</small>
+            </h3>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Select Your Target Field</label>
+                            <select id="fieldSelector" class="form-select form-select-lg" onchange="updateField()">
+                                <option value="software">Software Development</option>
+                                <option value="data-science">Data Science and AI</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="networking">Networking and Security</option>
+                                <option value="cloud">Cloud Computing</option>
+                                <option value="devops">DevOps</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="demandScore" class="text-center">
+                                <p class="text-muted">Select a field to see demand</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Trending Technologies</h5>
+                </div>
+                <div class="card-body">
+                    <div id="trendingTech">
+                        <p class="text-center text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card border shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Live Job Openings</h5>
+                </div>
+                <div class="card-body">
+                    <div id="liveJobs">
+                        <p class="text-center text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Certification Courses</h5>
+                </div>
+                <div class="card-body">
+                    <div id="liveCertifications">
+                        <p class="text-center text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card border shadow-sm">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Resume Templates</h5>
+                </div>
+                <div class="card-body">
+                    <div id="resumeTemplates">
+                        <p class="text-center text-muted">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function getField() {
+    var select = document.getElementById('fieldSelector');
+    return select ? select.value : 'software';
+}
+
+function updateField() {
+    var field = getField();
+    
+    fetch('/set-target-field', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field: field })
+    });
+    
+    loadAllData();
+}
+
+function loadMarketTrends(field) {
+    fetch('/api/market-trends?field=' + field)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var html = '<div class="list-group">';
+            if (data.trending_skills && data.trending_skills.length > 0) {
+                for (var i = 0; i < data.trending_skills.length && i < 8; i++) {
+                    var skill = data.trending_skills[i];
+                    html += '<div class="list-group-item d-flex justify-content-between">';
+                    html += '<span>' + skill.skill + '</span>';
+                    html += '<span class="badge bg-primary">' + skill.count + ' jobs</span>';
+                    html += '</div>';
+                }
+            } else {
+                html += '<div class="list-group-item">No data available</div>';
+            }
+            html += '</div>';
+            document.getElementById('trendingTech').innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('trendingTech').innerHTML = '<p class="text-danger">Failed to load</p>';
+        });
+}
+
+function loadJobListings(field) {
+    fetch('/api/job-listings?field=' + field)
+        .then(function(r) { return r.json(); })
+        .then(function(jobs) {
+            var html = '<div class="list-group">';
+            if (jobs && jobs.length > 0) {
+                for (var i = 0; i < jobs.length && i < 10; i++) {
+                    var job = jobs[i];
+                    html += '<div class="list-group-item">';
+                    html += '<strong>' + (job.title || 'Job') + '</strong>';
+                    html += ' at ' + (job.company || 'Company');
+                    html += '<br><small>' + (job.location || '') + '</small>';
+                    html += '</div>';
+                }
+            } else {
+                html += '<div class="list-group-item">No jobs found</div>';
+            }
+            html += '</div>';
+            document.getElementById('liveJobs').innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('liveJobs').innerHTML = '<p class="text-danger">Failed to load</p>';
+        });
+}
+
+function loadCertifications(field) {
+    fetch('/api/live-certifications?field=' + field + '&level=1')
+        .then(function(r) { return r.json(); })
+        .then(function(certs) {
+            var html = '<div class="row">';
+            if (certs && certs.length > 0) {
+                for (var i = 0; i < certs.length; i++) {
+                    var c = certs[i];
+                    html += '<div class="col-md-6 mb-2">';
+                    html += '<div class="card p-2">';
+                    html += '<h6>' + c.name + '</h6>';
+                    html += '<span class="badge bg-secondary">' + c.platform + '</span>';
+                    html += '<br>';
+                    html += '<button class="btn btn-sm btn-primary mt-2 enroll-btn" ';
+                    html += 'data-platform="' + c.enrollment.platform + '" ';
+                    html += 'data-source="' + c.enrollment.source_id + '">';
+                    html += 'Start Course';
+                    html += '</button>';
+                    html += '</div>';
+                    html += '</div>';
+                }
+            } else {
+                html += '<div class="col-12"><p>No courses found</p></div>';
+            }
+            html += '</div>';
+            document.getElementById('liveCertifications').innerHTML = html;
+            
+            setupEnrollButtons();
+        })
+        .catch(function() {
+            document.getElementById('liveCertifications').innerHTML = '<p class="text-danger">Failed to load</p>';
+        });
+}
+
+function loadResumeTemplates(field) {
+    fetch('/api/resume-templates?field=' + field)
+        .then(function(r) { return r.json(); })
+        .then(function(templates) {
+            var html = '<ul class="list-group">';
+            if (templates && templates.length > 0) {
+                for (var i = 0; i < templates.length; i++) {
+                    var t = templates[i];
+                    html += '<li class="list-group-item d-flex justify-content-between">';
+                    html += '<a href="' + t.url + '" target="_blank">' + t.name + '</a>';
+                    html += '<span>' + (t.stars || 0) + ' stars</span>';
+                    html += '</li>';
+                }
+            } else {
+                html += '<li class="list-group-item">No templates found</li>';
+            }
+            html += '</ul>';
+            document.getElementById('resumeTemplates').innerHTML = html;
+        })
+        .catch(function() {
+            document.getElementById('resumeTemplates').innerHTML = '<p class="text-danger">Failed to load</p>';
+        });
+}
+
+function setupEnrollButtons() {
+    var buttons = document.querySelectorAll('.enroll-btn');
+    buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var platform = this.getAttribute('data-platform');
+            var sourceId = this.getAttribute('data-source');
+            
+            this.disabled = true;
+            this.textContent = 'Enrolling...';
+            
+            fetch('/enroll-external', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    platform: platform,
+                    source_id: sourceId
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(function() {
+                alert('Enrollment failed');
+                btn.disabled = false;
+                btn.textContent = 'Start Course';
+            });
+        });
+    });
+}
+
+function loadAllData() {
+    var field = getField();
+    loadMarketTrends(field);
+    loadJobListings(field);
+    loadCertifications(field);
+    loadResumeTemplates(field);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllData();
+});
+</script>
+{% endblock %}
