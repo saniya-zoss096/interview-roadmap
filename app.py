@@ -6,6 +6,7 @@ import io
 import hashlib
 from datetime import datetime, timedelta
 
+import uuid
 import numpy as np
 import pandas as pd
 import cv2
@@ -765,6 +766,21 @@ class DynamicCourseBuilder:
             return None
 
 # Resume template fetcher
+class SupportTicket(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_number = db.Column(db.String(20), unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    name = db.Column(db.String(200))
+    email = db.Column(db.String(200))
+    subject = db.Column(db.String(200))
+    category = db.Column(db.String(50))
+    message = db.Column(db.Text)
+    status = db.Column(db.String(20), default='Open')
+    priority = db.Column(db.String(20), default='Medium')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    admin_response = db.Column(db.Text)
+
 class ResumeEngine:
     def get_latest_templates(self, industry):
         try:
@@ -820,6 +836,42 @@ def register():
         db.session.commit()
         return redirect(url_for('login'))
     return render_template('register.html')
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html', current_date=datetime.utcnow().strftime('%B %d, %Y'))
+
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        ticket_num = f"TKT-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+        
+        ticket = SupportTicket(
+            ticket_number=ticket_num,
+            user_id=current_user.id if current_user.is_authenticated else None,
+            name=request.form.get('name'),
+            email=request.form.get('email'),
+            subject=request.form.get('subject'),
+            category=request.form.get('category'),
+            message=request.form.get('message'),
+            priority=request.form.get('priority', 'Medium')
+        )
+        db.session.add(ticket)
+        db.session.commit()
+        
+        return render_template('contact.html', success=True, ticket_number=ticket_num)
+    
+    return render_template('contact.html')
+
+@app.route('/admin/tickets')
+@login_required
+def admin_tickets():
+    if current_user.username != 'admin':
+        return redirect(url_for('dashboard'))
+    
+    tickets = SupportTicket.query.order_by(SupportTicket.created_at.desc()).all()
+    return render_template('admin_tickets.html', tickets=tickets)
+
 
 @app.route('/dashboard')
 @login_required
@@ -959,6 +1011,7 @@ def enroll_external():
         db.session.commit()
     return jsonify({'success': True, 'redirect': url_for('view_course', course_id=course.id)})
 
+
 @app.route('/course/<int:course_id>')
 @login_required
 def view_course(course_id):
@@ -974,29 +1027,35 @@ def view_course(course_id):
 @app.route('/lesson/complete', methods=['POST'])
 @login_required
 def complete_lesson():
-    data = request.json
-    lesson_id = data['lesson_id']
-    course_id = data['course_id']
-    progress = UserCourseProgress.query.filter_by(user_id=current_user.id, course_id=course_id).first()
+    # Get data from form submission
+    lesson_id = int(request.form.get('lesson_id'))
+    course_id = int(request.form.get('course_id'))
+    
+    progress = UserCourseProgress.query.filter_by(
+        user_id=current_user.id, course_id=course_id
+    ).first()
+    
     if not progress:
-        return jsonify({'error': 'No progress'}), 400
+        return jsonify({'error': 'No progress record found'}), 400
+    
     completed = json.loads(progress.completed_lessons or '[]')
     if lesson_id not in completed:
         completed.append(lesson_id)
         progress.completed_lessons = json.dumps(completed)
-        db.session.commit()
-    course = Course.query.get(course_id)
-    all_lessons = [l.id for l in course.lessons]
-    all_done = set(all_lessons).issubset(set(completed))
-    if all_done and not progress.completed:
-        quiz = Quiz.query.filter_by(course_id=course_id).first()
-        if not quiz:
+        progress.last_accessed = datetime.utcnow()
+        
+        course = Course.query.get(course_id)
+        all_lessons = [l.id for l in course.lessons]
+        all_done = set(all_lessons).issubset(set(completed))
+        
+        if all_done:
             progress.completed = True
             progress.completed_date = datetime.utcnow()
-            db.session.commit()
             generate_certificate(current_user, course)
-            return jsonify({'all_lessons_done': True, 'course_completed': True})
-    return jsonify({'all_lessons_done': all_done, 'course_completed': progress.completed})
+        
+        db.session.commit()
+    
+    return redirect(url_for('view_course', course_id=course_id))
 
 @app.route('/quiz/<int:quiz_id>')
 @login_required

@@ -1,34 +1,158 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Terms and Conditions</h2>
-    <p class="text-muted">Last updated: {{ current_date }}</p>
-    
-    <div class="card mt-3">
-        <div class="card-body">
-            <h4>1. Acceptance of Terms</h4>
-            <p>By using the AI-Driven Learning-to-Interview Roadmap, you agree to these terms and conditions. If you do not agree, please do not use the application.</p>
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="mb-3">Terms and Conditions</h2>
+            <p class="text-muted small">Last updated: {{ current_date }}</p>
+            <hr>
             
-            <h4>2. User Accounts</h4>
-            <p>You are responsible for maintaining the confidentiality of your account credentials. All activities under your account are your responsibility.</p>
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    
+                    <h5 class="text-primary">1. Acceptance of Terms</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        By accessing and using the AI-Driven Learning-to-Interview Roadmap ("the Application"), 
+                        you acknowledge that you have read, understood, and agree to be bound by these Terms 
+                        and Conditions. If you do not agree with any part of these terms, you must discontinue 
+                        use of the Application immediately. Continued use of the Application constitutes 
+                        acceptance of these terms.
+                    </p>
+                    
+                    <h5 class="text-primary">2. User Accounts and Responsibilities</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        You are responsible for maintaining the confidentiality of your account credentials, 
+                        including your username and password. You agree to provide accurate, current, and 
+                        complete information during the registration process. You are solely responsible for 
+                        all activities that occur under your account. If you suspect any unauthorized use 
+                        of your account, you must notify the administrator immediately.
+                    </p>
+                    
+                    <h5 class="text-primary">3. Privacy and Data Protection</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        We are committed to protecting your privacy. The Application employs automatic 
+                        face-blurring technology during interview practice sessions. No video recordings, 
+                        images, or camera feeds are stored on our servers. All personal data, including 
+                        academic scores and assessment results, are encrypted and used solely for generating 
+                        personalized learning recommendations. We do not share your data with third parties 
+                        without your explicit consent.
+                    </p>
+                    
+                    <h5 class="text-primary">4. Academic Data Usage</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        Your exam scores, subject-wise understanding levels, and academic performance data 
+                        are collected exclusively to generate personalized study plans, assess your 
+                        professional readiness level, and recommend appropriate courses. This data is 
+                        not shared with educational institutions, employers, or any external entities 
+                        unless you explicitly authorize such sharing.
+                    </p>
+                    
+                    <h5 class="text-primary">5. Third-Party Services and APIs</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        The Application integrates with third-party services including SerpAPI, GitHub, 
+                        NPTEL, and Coursera to provide real-time market intelligence, certification 
+                        recommendations, and job listings. We do not control and are not responsible 
+                        for the content, accuracy, or availability of these third-party services. 
+                        External links and course enrollments are subject to the respective platform's 
+                        terms and conditions.
+                    </p>
+                    
+                    <h5 class="text-primary">6. Certificates and Badges</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        Certificates and badges issued by the Application represent course completion 
+                        within our platform and are intended for personal development and skill 
+                        demonstration purposes. They do not constitute official academic credentials, 
+                        university credits, or professional certifications unless explicitly stated. 
+                        Verification codes provided on certificates can be validated through our 
+                        platform's verification system.
+                    </p>
+                    
+                    <h5 class="text-primary">7. Intellectual Property</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        All content, features, and functionality of the Application, including but not 
+                        limited to the AI assessment algorithms, user interface design, and proprietary 
+                        code, are the intellectual property of the Application's developers. Course 
+                        content accessed through external platforms remains the property of their 
+                        respective owners.
+                    </p>
+                    
+                    <h5 class="text-primary">8. Limitation of Liability</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        The Application is provided on an "as is" and "as available" basis without 
+                        warranties of any kind, either express or implied. We do not guarantee that 
+                        the Application will be uninterrupted, error-free, or free from harmful 
+                        components. In no event shall the Application's developers be liable for 
+                        any indirect, incidental, special, or consequential damages arising from 
+                        the use of or inability to use the Application.
+                    </p>
+                    
+                    <h5 class="text-primary">9. Modifications to Terms</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        We reserve the right to modify or replace these Terms and Conditions at any 
+                        time without prior notice. Material changes will be communicated through the 
+                        Application or via email. Your continued use of the Application after such 
+                        modifications constitutes acceptance of the updated terms.
+                    </p>
+                    
+                    <h5 class="text-primary">10. Termination</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        We reserve the right to suspend or terminate your account and access to the 
+                        Application at our sole discretion, without prior notice, for conduct that 
+                        we believe violates these Terms or is harmful to other users, us, or third 
+                        parties.
+                    </p>
+                    
+                    <hr class="my-4">
+                    
+                    <h5 class="text-primary">11. Contact Administrator</h5>
+                    <p class="small text-muted" style="font-size: 0.85rem; line-height: 1.6;">
+                        For questions, concerns, technical support, or to report issues regarding 
+                        these Terms and Conditions or the Application, please contact the administrator 
+                        through any of the following channels:
+                    </p>
+                    
+                    <div class="card bg-light mt-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <h6><i class="fas fa-envelope text-primary me-2"></i>Email</h6>
+                                    <p class="small mb-0">
+                                        <a href="mailto:support@interviewroadmap.com" class="text-decoration-none">
+                                            support@interviewroadmap.com
+                                        </a>
+                                    </p>
+                                    <small class="text-muted">Response within 24-48 hours</small>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <h6><i class="fas fa-question-circle text-primary me-2"></i>Help Desk</h6>
+                                    <p class="small mb-0">
+                                        <a href="/contact" class="text-decoration-none">
+                                            Submit a Support Ticket
+                                        </a>
+                                    </p>
+                                    <small class="text-muted">Track your query status</small>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info small mt-3 mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Note:</strong> Please include your registered username and a detailed 
+                                description of your issue for faster resolution. For urgent matters, 
+                                use the email subject line: "URGENT: [Your Issue]"
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
             
-            <h4>3. Privacy</h4>
-            <p>We take your privacy seriously. Your face is automatically blurred during interview practice. No video recordings are stored. Personal data is encrypted and protected.</p>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('register') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Registration
+                </a>
+            </div>
             
-            <h4>4. Academic Data</h4>
-            <p>Your exam scores and academic information are used solely for generating personalized study plans and professional level assessments.</p>
-            
-            <h4>5. API Usage</h4>
-            <p>This application uses third-party APIs (SerpAPI, GitHub) to provide real-time market data. We are not responsible for the accuracy of third-party content.</p>
-            
-            <h4>6. Certificates</h4>
-            <p>Certificates issued are for personal development purposes and do not constitute official academic credentials.</p>
-            
-            <h4>7. Limitation of Liability</h4>
-            <p>This application is provided "as is" without warranties of any kind. We are not liable for any damages arising from its use.</p>
-            
-            <h4>8. Contact</h4>
-            <p>For questions about these terms, contact the administrator.</p>
         </div>
     </div>
 </div>

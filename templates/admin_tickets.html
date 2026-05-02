@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Support Tickets</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3>{{ tickets|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                    <small>Open Tickets</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ticket #</th>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Category</th>
+                            <th>Subject</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td><small>{{ ticket.ticket_number }}</small></td>
+                            <td><small>{{ ticket.created_at.strftime('%d/%m/%Y') }}</small></td>
+                            <td>{{ ticket.name }}</td>
+                            <td><a href="mailto:{{ ticket.email }}">{{ ticket.email }}</a></td>
+                            <td><span class="badge bg-secondary">{{ ticket.category }}</span></td>
+                            <td>{{ ticket.subject }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if ticket.priority == 'Urgent' else 'warning' if ticket.priority == 'High' else 'info' }}">
+                                    {{ ticket.priority }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'warning' if ticket.status == 'Open' else 'success' }}">
+                                    {{ ticket.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
